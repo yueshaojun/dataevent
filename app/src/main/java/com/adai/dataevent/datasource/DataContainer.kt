@@ -1,4 +1,4 @@
-package com.example.myapplication.datasource
+package com.adai.dataevent.datasource
 
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.MutableLiveData

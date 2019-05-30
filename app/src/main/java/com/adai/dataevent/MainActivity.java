@@ -1,7 +1,5 @@
-package com.example.myapplication;
+package com.adai.dataevent;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,7 +9,9 @@ import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.example.myapplication.datasource.DataContainer;
+import com.adai.dataevent.datasource.DataContainer;
+import com.adai.dataevent.test.Data;
+import com.adai.dataevent.test.Test;
 
 public class MainActivity extends AppCompatActivity {
 
