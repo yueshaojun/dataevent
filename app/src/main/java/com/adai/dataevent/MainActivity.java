@@ -1,17 +1,17 @@
 package com.adai.dataevent;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.webkit.RenderProcessGoneDetail;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import com.adai.dataevent.datasource.DataContainer;
+import com.adai.dataevent.group.OrderDataObserver;
 import com.adai.dataevent.test.Data;
 import com.adai.dataevent.test.Test;
+
+import org.jetbrains.annotations.Nullable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,23 +24,24 @@ public class MainActivity extends AppCompatActivity {
         final Data data = new Data();
         DataContainer.INSTANCE.addData("data",data);
         DataContainer.INSTANCE.addData("key",test);
+        DataContainer.INSTANCE.addToGroup("group", test, new OrderDataObserver<Object>() {
+            @Override
+            public boolean onReceived(@Nullable Object o) {
+                Log.d("adaibugao","group ==="+o.toString());
+                return true;
+            }
+        });
+        DataContainer.INSTANCE.addToGroup("group", data, new OrderDataObserver<Object>() {
+            @Override
+            public boolean onReceived(@Nullable Object o) {
+                Log.d("adaibugao","group ===1"+o.toString());
+                return true;
+            }
+        });
         findViewById(R.id.tv_hello).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (int i = 0 ;i<10;i++) {
-                            test.setValue("shaojun"+i);
-                            DataContainer.INSTANCE.addData("key", test);
-                            try {
-                                Thread.sleep(200);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }).start();
+                DataContainer.INSTANCE.addEvent("event1");
                 startActivity(new Intent(MainActivity.this,Main2Activity.class));
             }
         });
@@ -48,17 +49,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        new WebView(this).setWebViewClient(new WebViewClient(){
-            @Override
-            public void onLoadResource(WebView view, String url) {
-                super.onLoadResource(view, url);
-            }
-
-            @Override
-            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
-                return super.onRenderProcessGone(view, detail);
-            }
-        });
         Log.d("MainActivity","onPause");
     }
 
