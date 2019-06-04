@@ -18,7 +18,7 @@ abstract class OrderDataObserver<T> : Observer<Any> {
     abstract fun onReceived(t: T?): Boolean
     override fun onChanged(t: Any?) {
         if (t?.javaClass == mType) {
-            onReceived(t = t as? T)
+            onReceived(t = t as T)
         }
     }
 }

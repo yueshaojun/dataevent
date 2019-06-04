@@ -22,16 +22,14 @@ public class MainActivity extends AppCompatActivity {
         final Test test = new Test();
         test.setValue("yuetest");
         final Data data = new Data();
-        DataContainer.INSTANCE.addData("data",data);
-        DataContainer.INSTANCE.addData("key",test);
-        DataContainer.INSTANCE.addToGroup("group", test, new OrderDataObserver<Object>() {
+        DataContainer.INSTANCE.addToGroup("group", "key",test, new OrderDataObserver<Object>() {
             @Override
             public boolean onReceived(@Nullable Object o) {
                 Log.d("adaibugao","group ==="+o.toString());
                 return true;
             }
         });
-        DataContainer.INSTANCE.addToGroup("group", data, new OrderDataObserver<Object>() {
+        DataContainer.INSTANCE.addToGroup("group","data", data, new OrderDataObserver<Object>() {
             @Override
             public boolean onReceived(@Nullable Object o) {
                 Log.d("adaibugao","group ===1"+o.toString());

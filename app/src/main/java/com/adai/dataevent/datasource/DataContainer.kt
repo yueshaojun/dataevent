@@ -6,12 +6,14 @@ import com.adai.dataevent.event.Event
 import com.adai.dataevent.event.EventObserver
 import com.adai.dataevent.group.OrderDataObserver
 import com.adai.dataevent.group.OrderLiveData
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 
+@ObsoleteCoroutinesApi
 object DataContainer {
-    private val container = mutableMapOf<String, MutableLiveData<Any>>()
+    private val container = mutableMapOf<String, OrderLiveData>()
     private val groupContainer = mutableMapOf<String, OrderLiveData>()
     private val groupTails = mutableMapOf<String, OrderLiveData>()
-    fun addData(key: String, data: MutableLiveData<Any>) {
+    fun addData(key: String, data: OrderLiveData) {
         if (container.containsKey(key)) {
             container[key]
         }
@@ -22,29 +24,33 @@ object DataContainer {
         if (container.containsKey(key)) {
             container[key]?.postValue(data)
         } else {
-            MutableLiveData<Any>().also {
+            OrderLiveData().also {
                 container[key] = it
                 it.postValue(data)
             }
         }
     }
 
-    fun addToGroup(groupKey: String, data: Any, observer: OrderDataObserver<Any>): OrderLiveData {
+    fun addToGroup(groupKey: String,
+                   key: String,
+                   data: Any,
+                   observer: OrderDataObserver<Any>) {
         if (groupContainer.containsKey(groupKey)) {
             val nextData = OrderLiveData().also {
-                it.value = data
+                it.postValue(data)
                 it.observer = observer
+                container[key] = it
             }
             addToTail(groupKey, nextData)
         } else {
             OrderLiveData().also {
-                it.value = data
+                it.postValue(data)
                 it.observer = observer
+                container[key] = it
                 groupContainer[groupKey] = it
-                addToTail(groupKey,it)
+                addToTail(groupKey, it)
             }
         }
-        return groupContainer[groupKey]!!
     }
 
     private fun addToTail(key: String, nextData: OrderLiveData) {
@@ -68,6 +74,16 @@ object DataContainer {
             data.observe(lifecycleOwner, observer)
         }
     }
+
+    fun registerGroupObserver(groupKey: String, observer: EventObserver) {
+        groupContainer[groupKey]?.also {
+            it.subscribe()
+        }
+        groupTails[groupKey]?.also {
+            it.eventObserver = observer
+        }
+    }
+
 
     private fun registerObserverSticky(key: String, lifecycleOwner: LifecycleOwner?, observer: Observer<Any>) {
         lifecycleOwner?.lifecycle?.addObserver(object : DataLifecycle {
@@ -100,9 +116,12 @@ object DataContainer {
         registerObserverSticky(key, lifecycleOwner, observer)
     }
 
-    fun getData(key: String): Any? {
-        val data = container[key] ?: return null
-        return data.value
+    fun getData(key: String): MutableLiveData<Any>? {
+        return container[key] ?: return null
+    }
+
+    fun <T> getDataValue(key: String): T? {
+        return container[key]?.value as? T
     }
 
     fun removeData(key: String) {
